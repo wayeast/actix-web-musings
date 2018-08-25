@@ -1,0 +1,7 @@
+[package]
+name = "actix-web-musings"
+version = "0.1.0"
+authors = ["Huston Bokinsky <huston@deepgram.com>"]
+
+[dependencies]
+actix-web = "0.7.4"
