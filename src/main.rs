@@ -1,27 +1,28 @@
 extern crate actix_web;
 
-use actix_web::{http, server, App, HttpRequest};
-use std::sync::{Arc, Mutex};
+use actix_web::{server, App, HttpResponse};
 
-struct State {
-    counter: Arc<Mutex<usize>>,
-}
-
-fn index(req: &HttpRequest<State>) -> String {
-    let mut count = req.state().counter.lock().unwrap();
-    *count += 1;
-
-    format!("Current count: {}", count)
-}
+// NB: this example, copied directly from the actix-web getting started
+//  guide, is intended to show how all App instances in a server need to
+//  be of the same type (eg. App<State1>).  Try removing the `.boxed()`
+//  directives to see what happens.  Also, try removing one and leaving
+//  the other.
+struct State1;
+struct State2;
 
 fn main() {
-    let count = Arc::new(Mutex::new(0_usize));
-
-    server::new(move || {
-        App::with_state(State { counter: Arc::clone(&count) })
-            .resource("/", |r| r.method(http::Method::GET).f(index))
-    })
-        .bind("127.0.0.1:8088")
+    server::new(|| {
+        vec![
+            App::with_state(State1)
+                .prefix("/app1")
+                .resource("/", |r| r.f(|_| HttpResponse::Ok()))
+                .boxed(),
+            App::with_state(State2)
+                .prefix("/app2")
+                .resource("/", |r| r.f(|_| HttpResponse::Ok()))
+                .boxed(),
+                ]
+    }).bind("127.0.0.1:8088")
         .unwrap()
         .run()
 }
