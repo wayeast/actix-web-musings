@@ -4,4 +4,6 @@ version = "0.1.0"
 authors = ["Huston Bokinsky <huston@deepgram.com>"]
 
 [dependencies]
-actix-web = "0.7.4"
+actix-web = { version = "0.7.4", features = ["alpn"] }
+bytes = "0.4.9"
+futures = "0.1.23"
