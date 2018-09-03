@@ -1,29 +1,31 @@
 extern crate actix_web;
-extern crate futures;
 
 use actix_web::*;
-use futures::future::{Future, result};
 
-fn index(_: &HttpRequest) -> Box<Future<Item=HttpResponse, Error=Error>> {
-
-    result(Ok(HttpResponse::Ok()
-              .content_type("text/html")
-              .body(format!("Hello!"))))
-           .responder()
-}
-
-fn index2(_: &HttpRequest) -> Box<Future<Item=&'static str, Error=Error>> {
-    result(Ok("Welcome!"))
-        .responder()
+fn handler(_: &HttpRequest) -> impl Responder {
+    HttpResponse::Ok()
 }
 
 fn main() {
     server::new(|| {
         App::new()
-            .resource("/async1", |r| r.route().a(index))
-            .resource("/async2", |r| r.route().a(index2))
+            .handler("/handler", handler)
     })
         .bind("127.0.0.1:8088")
         .unwrap()
         .run();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::handler;
+    use actix_web::*;
+
+    #[test]
+    fn it_finally_works() {
+        let resp = test::TestRequest::default()
+            .run(&handler)
+            .unwrap();
+        assert_eq!(resp.status(), http::StatusCode::OK);
+    }
 }
